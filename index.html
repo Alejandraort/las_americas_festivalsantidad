@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mini-Juego Festival de la Santidad</title>
+<style>
+body {font-family:'Comic Sans MS', cursive, sans-serif; background:linear-gradient(135deg,#ffecd2,#fcb69f); margin:0; overflow:hidden; display:flex; justify-content:center; align-items:center; height:100vh; color:#fff;}
+.game-container {background-color: rgba(0,0,0,0.6); border-radius:25px; padding:30px; width:90%; max-width:500px; box-shadow:0 8px 25px rgba(0,0,0,0.5); text-align:center; position:relative; overflow:hidden; backdrop-filter: blur(10px);}
+h1 {font-size:30px; color:#ffd700; text-shadow:2px 2px 5px #000; margin-bottom:20px; animation: glow 1.5s infinite alternate;}
+@keyframes glow {from {text-shadow:2px 2px 5px #000;} to {text-shadow:2px 2px 15px #fff8c2;}}
+.step {display:none; margin-top:20px; animation: fadeIn 0.5s;}
+@keyframes fadeIn {from {opacity:0;} to {opacity:1;}}
+input, select, button {width:100%; padding:12px; margin-top:15px; border-radius:15px; border:2px solid #ffd700; font-size:16px; transition: all 0.3s ease;}
+input:focus, select:focus {border-color:#ff6f61; outline:none;}
+button {background-color:#ff6f61; color:white; border:none; cursor:pointer; margin-top:20px; font-size:18px; font-weight:bold; transition: transform 0.2s, background 0.3s; box-shadow:0 4px 12px rgba(0,0,0,0.3);}
+button:hover {background-color:#ff3b2e; transform: scale(1.1);}
+.emoji {font-size:60px; margin-bottom:10px; animation:bounce 1s infinite alternate;}
+@keyframes bounce {0%,100%{transform:translateY(0);} 50%{transform:translateY(-15px);}}
+.final-message {font-size:20px; color:#ffd700; font-weight:bold; text-shadow:1px 1px 5px #000; margin-bottom:10px;}
+.confetti {position:absolute; width:15px; height:15px; background-color:#ff6f61; top:-20px; border-radius:50%; animation:fall linear infinite;}
+@keyframes fall {0% {transform:translateY(0) rotate(0deg);} 100% {transform:translateY(120vh) rotate(360deg);}}
+img.santo-img {width:120px; margin:10px auto; display:block; border-radius:10px; border:2px solid #ffd700;}
+</style>
+</head>
+<body>
+<div class="game-container">
+<h1>🎉 Festival de la Santidad 🎉</h1>
+<form id="festivalForm" action="https://formspree.io/f/your_form_id" method="POST">
+
+<div class="step" id="step1">
+<div class="emoji">👤</div>
+<input type="text" name="nombre" id="nombre" placeholder="¿Cuál es tu nombre?" required>
+<button type="button" onclick="nextStep(1)">Siguiente</button>
+</div>
+
+<div class="step" id="step2">
+<div class="emoji">🎂</div>
+<input type="number" name="edad" id="edad" placeholder="¿Cuál es tu edad?" min="1" required>
+<button type="button" onclick="nextStep(2)">Siguiente</button>
+</div>
+
+<div class="step" id="step3">
+<div class="emoji">🏘️</div>
+<select name="comunidadPregunta" id="comunidadPregunta" required>
+<option value="">¿Perteneces a alguna comunidad?</option>
+<option value="si">Sí</option>
+<option value="no">No</option>
+</select>
+<button type="button" onclick="nextStep(3)">Siguiente</button>
+</div>
+
+<div class="step" id="step4">
+<div class="emoji">⛪</div>
+<input type="text" name="comunidad" id="comunidad" placeholder="¿Cuál es tu comunidad?">
+<button type="button" onclick="nextStep(4)">Siguiente</button>
+</div>
+
+<div class="step" id="step5">
+<div class="emoji">😇</div>
+<img src="santo.png" alt="Santo" class="santo-img">
+<input type="text" name="santo" id="santo" placeholder="¿De qué santo te vas a disfrazar?" required>
+<button type="submit" onclick="submitForm(event)">Finalizar</button>
+</div>
+
+<div class="step" id="final">
+<div class="emoji">🎊</div>
+<div class="final-message" id="finalMessage"></div>
+</div>
+
+</form>
+</div>
+
+<script>
+let currentStep = 1;
+document.getElementById("step1").style.display = "block";
+
+function nextStep(step){
+    if(step===1 && !document.getElementById("nombre").value.trim()){ alert("Por favor ingresa tu nombre"); return; }
+    if(step===2 && !document.getElementById("edad").value.trim()){ alert("Por favor ingresa tu edad"); return; }
+    if(step===3){
+        const cp = document.getElementById("comunidadPregunta").value;
+        if(!cp){ alert("Selecciona una opción"); return; }
+        document.getElementById("step3").style.display="none";
+        if(cp==="si"){ document.getElementById("step4").style.display="block"; currentStep=4; }
+        else{ document.getElementById("step5").style.display="block"; currentStep=5; }
+        return;
+    }
+    document.getElementById(`step${step}`).style.display="none";
+    currentStep++;
+    document.getElementById(`step${currentStep}`).style.display="block";
+}
+
+function submitForm(event){
+    event.preventDefault();
+    if(!document.getElementById("santo").value.trim()){ alert("Por favor ingresa el santo"); return; }
+
+    const nombre=document.getElementById("nombre").value.trim();
+    const edad=document.getElementById("edad").value.trim();
+    const cp=document.getElementById("comunidadPregunta").value;
+    const comunidad=document.getElementById("comunidad").value.trim();
+    const santo=document.getElementById("santo").value.trim();
+
+    let mensaje=`🎉 ¡Registro completado! 🎉\n\nNombre: ${nombre}\nEdad: ${edad}`;
+    if(cp==="si"){ mensaje+=`\nComunidad: ${comunidad}`; }
+    mensaje+=`\nSanto: ${santo}`;
+
+    document.getElementById("finalMessage").innerText=mensaje.replace(/\n/g,"\n");
+    document.getElementById(`step5`).style.display="none";
+    document.getElementById("final").style.display="block";
+
+    for(let i=0;i<50;i++){
+        const confetti=document.createElement('div');
+        confetti.classList.add('confetti');
+        confetti.style.left=Math.random()*100+'%';
+        confetti.style.backgroundColor=`hsl(${Math.random()*360},70%,60%)`;
+        confetti.style.animationDuration=3+Math.random()*2+'s';
+        document.body.appendChild(confetti);
+        setTimeout(()=>confetti.remove(),5000);
+    }
+
+    document.getElementById("festivalForm").submit();
+}
+</script>
+</body>
+</html>
